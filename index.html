@@ -57,7 +57,7 @@
     <h1>📝 Todo App</h1>
     <div>
         <input type="text" id="titleInput" placeholder="やることを入力...">
-        <button onclick="createTodo()">追加</button>
+        <button type="button" onclick="createTodo()">追加</button>
     </div>
     <ul id="todoList"></ul>
 
@@ -74,7 +74,7 @@
                 li.innerHTML = `
           <input type="checkbox" ${todo.done ? 'checked' : ''} onchange="updateTodo('${todo.id}', this.checked)">
           <span class="${todo.done ? 'done' : ''}">${todo.title}</span>
-          <button class="delete-btn" onclick="deleteTodo('${todo.id}')">🗑</button>
+          <button type="button" class="delete-btn" onclick="deleteTodo('${todo.id}')">🗑</button>
         `;
                 list.appendChild(li);
             });
