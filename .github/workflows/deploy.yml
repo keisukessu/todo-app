@@ -9,10 +9,15 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
+      - name: HTML構文チェック
+        uses: validator/html-validator-action@v1.0.2
+        with:
+          file-path: index.html
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -21,3 +26,27 @@ jobs:
       - name: Deploy to S3
         run: |
           aws s3 sync . s3://todo-app-keisuke-2026 --exclude ".git/*" --exclude ".github/*"
+
+      - name: Slack通知（成功）
+        if: success()
+        uses: slackapi/slack-github-action@v1.27.0
+        with:
+          payload: |
+            {
+              "text": "✅ デプロイ成功！\nリポジトリ: ${{ github.repository }}\nコミット: ${{ github.sha }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+
+      - name: Slack通知（失敗）
+        if: failure()
+        uses: slackapi/slack-github-action@v1.27.0
+        with:
+          payload: |
+            {
+              "text": "❌ デプロイ失敗！\nリポジトリ: ${{ github.repository }}\nコミット: ${{ github.sha }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
